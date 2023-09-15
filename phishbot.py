@@ -20,15 +20,13 @@ def initialize():
     parser = argparse.ArgumentParser("phishbot operators")
     parser.add_argument("-e", "--email", type=str, help="enter email of recipient")
     parser.add_argument("-f", "--file", type=str, help="enter file with list of recipients")
-    parser.add_argument("-r", "--report", action="store_true", help="run report of phish statistics")
     args = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit()
     email = args.email
     file = args.file
-    report = args.report
-    return(email,file,report)
+    return(email,file)
 
 def single_phish(email):
     logo_gen()
@@ -51,9 +49,6 @@ def multi_phish(file):
         time.sleep(1)
     mail_server.quit()
     email_list.close()
-
-def create_report():
-    print("generating report.. under maintenance")
 
 def logo_gen():
     print(colors.YELLOW + "                           __    _      __    __          __")
@@ -121,10 +116,8 @@ def create_log(email_from,email_to,subject,url,body):
     l.write(log_output)
     l.close
 
-email,file,report = initialize()
+email,file = initialize()
 if email:
     single_phish(email)
 if file:
     multi_phish(file)
-if report:
-    create_report()
