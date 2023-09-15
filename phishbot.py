@@ -104,7 +104,7 @@ def create_url():
     f = open("/var/www/html/" + t + ".html", "w")
     f.write("<html>gotcha!</html>")
     f.close
-    url = "http://3.19.16.86/" + t + ".html" ###update IP address/hostname
+    url = "http://44.209.233.111/" + t + ".html" ###update IP address/hostname
     print(colors.GREEN + "Created url " + url + " \n" + colors.ENDC)
     return(url)
 
