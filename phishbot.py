@@ -12,11 +12,9 @@ from datetime import datetime
 import os
 
 class colors:
-    RED = '\033[31m'
     ENDC = '\033[m'
     GREEN = '\033[32m'
     YELLOW = '\033[33m'
-    BLUE = '\033[34m'
 
 def initialize():
     parser = argparse.ArgumentParser("phishbot operators")
@@ -65,20 +63,11 @@ def logo_gen():
     print(colors.YELLOW + "        \\__/\\    / .___/_/ /_/_/____/_/ /_/_.___/\\____/\\__/  ")
     print(colors.YELLOW + "                /_/ ")
 
-def get_cred():
-    file = open("/opt/phishbot/auth/.gmcred","r")
-    lines = file.readlines()
-    user = lines[0].rstrip("\n")
-    password = lines[1].rstrip("\n")
-    return(user,password)
-
 def mail_server_connect():
-    #user, password = get_cred()
     user = os.getenv('OUTLOOK_USER')
     pswd = os.getenv('OUTLOOK_PASSWORD')
     smtp_port = 587
     smtp_server = "smtp-mail.outlook.com"
-    #pswd = password
     print(colors.GREEN + "Connecting to mail server ... " + colors.ENDC)
     mail_server = smtplib.SMTP(smtp_server, smtp_port)
     mail_server.starttls()
