@@ -116,7 +116,7 @@ def create_url():
 def create_log(email_from,email_to,subject,url,body):
     print(colors.GREEN + "Create log entry ... \n" + colors.ENDC)
     logdate = (datetime.now()).strftime("%m/%d/%Y %H:%M:%S")
-    log_output = logdate + " sender=" + email_from + " recipient=" + email_to + " subject=" + subject + " attachment= phishurl=" + url + " body=" + body + "\n"
+    log_output = logdate + ' action="send_phish" sender="' + email_from + '" recipient="' + email_to + '" subject="' + subject + '" attachment= phishurl="' + url + '" body="' + body + '\n'
     l = open("/opt/hackathon/phishbot.log", "a")
     l.write(log_output)
     l.close
