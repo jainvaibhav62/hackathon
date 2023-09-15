@@ -77,7 +77,7 @@ def mail_server_connect():
     user = os.getenv('OUTLOOK_USER')
     pswd = os.getenv('OUTLOOK_PASSWORD')
     smtp_port = 587
-    smtp_server = "smtp-mail.outlook.com""
+    smtp_server = "smtp-mail.outlook.com"
     #pswd = password
     print(colors.GREEN + "Connecting to mail server ... " + colors.ENDC)
     mail_server = smtplib.SMTP(smtp_server, smtp_port)
