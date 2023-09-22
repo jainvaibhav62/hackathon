@@ -55,7 +55,7 @@ def create_receive_log(parsedemailfrom,parsedemailto,subject,parsedbody):
     parsedbody  = re.sub(r'(\r|\n)',r'', parsedbody)
     log_output = '{"timestamp":"' + logdate + '","action":"receive_phish_response","aiuser":"user","sender":"' + parsedemailfrom + '","recipient":"' + parsedemailto + '","subject":"' + subject + '","body":"' + parsedbody + '"}\n'
     print(log_output)
-    l = open("/root/braddev/phishbot.log", "a")
+    l = open("/opt/hackathon/phishbot.log", "a")
     l.write(log_output)
     l.close
 
@@ -63,7 +63,8 @@ def send_reply(original,parsedaliasto,parsedemailto,parsedemailfrom,subject):
     print("sending reply")
     new = MIMEMultipart("mixed")
     body = MIMEMultipart("alternative")
-    aibody,url,phishtype = ai_gen(parsedemailto,parsedemailfrom,subject)
+    url = get_url(parsedemailto, parsedemailfrom, subject)
+    aibody,phishtype = ai_gen(parsedemailto,parsedemailfrom,subject)
     if phishtype == '1' or phishtype == '2':
         fullbody = '<html><body><br>' + aibody + '<br><br><a href="' + url + '">open Okta</a><br><br> Thank you,<br>' + parsedaliasto + '</body></html>'
     elif phishtype == '3' or phishtype == '4':
@@ -94,16 +95,27 @@ def create_reply_log(parsedemailfrom,parsedemailto,aibody,subject):
     logdate = (datetime.now()).strftime("%m/%d/%Y %H:%M:%S")
     log_output = '{"timestamp":"' + logdate + '","action":"send_phish_reply","aiuser":"system","sender":"' + parsedemailto + '","recipient":"' + parsedemailfrom + '","subject":"' + subject + '","body":"' + aibody + '"}\n'
     print(log_output)
-    l = open("/root/braddev/phishbot.log", "a")
+    l = open("/opt/hackathon/phishbot.log", "a")
     l.write(log_output)
     l.close
 
 def ai_gen(parsedemailto,parsedemailfrom,subject):
     print("creating ai reply body")
     aibody = "Reply Body Here"
-    url = "https://www.google.com"
     phishtype = '1'
-    return(aibody,url,phishtype)
+    return(aibody,phishtype)
+
+def get_url(parsedemailto,parsedemailfrom,subject):
+    with open(r'/opt/hackathon/phishbot.log', 'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            if line.find(parsedemailto) != -1:
+                if line.find(parsedemailfrom) != -1:
+                    if line.find(subject) != 1:
+                        if line.find("send_initial_phish")
+                            url = re.findall(r'.*phishurl\"\:\"([^\"]*)', line)
+                            url = str(url[0])
+                            return(url)
 
 def main():
     original,parsedaliasto,parsedemailto,subject,parsedbody,parsedemailfrom = receive_email()
