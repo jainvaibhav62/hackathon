@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+#All code is for "Ethical Hacking" research/education purposes only.
 import sys
 import os
 import re
