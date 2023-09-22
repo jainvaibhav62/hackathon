@@ -1,123 +1,174 @@
 #!/usr/bin/python3
-import argparse
 import sys
+import os
+import re
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from email.utils import formataddr
+import openai
+import shutil
 import time
 from datetime import datetime
-import os
 
 class colors:
     ENDC = '\033[m'
     GREEN = '\033[32m'
     YELLOW = '\033[33m'
+    BOLD = '\033[1m'
+    RED = '\033[31m'
 
-def initialize():
-    parser = argparse.ArgumentParser("phishbot operators")
-    parser.add_argument("-e", "--email", type=str, help="enter email of recipient")
-    parser.add_argument("-f", "--file", type=str, help="enter file with list of recipients")
-    args = parser.parse_args()
-    if len(sys.argv) == 1:
-        parser.print_help()
+def logo():
+    print(colors.BOLD + colors.YELLOW + "\n                           __    _      __    __          __")
+    print(" __                 ____  / /_  (_)____/ /_  / /_  ____  / /_")
+    print("/o \\/    __        / __ \\/ __ \\/ / ___/ __ \\/ __ \\/ __ \\/ __/")
+    print("\\__/\\   /o \\/     / /_/ / / / / (__  ) / / / /_/ / /_/ / /_  ")
+    print("        \\__/\\    / .___/_/ /_/_/____/_/ /_/_.___/\\____/\\__/  ")
+    print("                /_/ \n" + colors.ENDC)
+
+def menu():
+    print(colors.ENDC + colors.BOLD + "Select an option to begin:\n")
+    print("  1) Single Target Email Phish -> Employee")
+    print("  2) Multi Target Email Phish -> Employees")
+    print("  3) Single Target Email Phish -> Customer")
+    print("  4) Multi Target Email Phish -> Customers\n")
+    print("  Press any other key to exit...\n")
+    input1 = input("> ")
+    if input1 == '1' or input1 == '3':
+        print("\nStarting single target phish -> Employee\n")
+        input2 = input(colors.ENDC + colors.BOLD + "Enter Target email address: " + colors.ENDC)
+        input3 = input(colors.ENDC + colors.BOLD + "Enter Sender Alias (ex. John Doe): " + colors.ENDC)
+        if input1 == '1':
+            confirm = input(colors.GREEN + colors.BOLD + "\nExecute single target phish to Employee: " + input2 + " with Sender Alias: " + input3 + " . Press \"y\" to confirm, press any other key to exit.\n> " + colors.ENDC)
+            if confirm == 'y' or confirm == 'Y':
+                return(input1, input2, input3)
+            else:
+                print(colors.RED + colors.BOLD + "\nExiting...\n" + colors.ENDC)
+                sys.exit()
+
+        elif input1 == '3':
+            confirm = input(colors.GREEN + colors.BOLD + "\nExecute single target phish to Customer: " + input2 + " with Sender Alias: " + input3 + " . Press \"y\" to confirm, press any other key to exit.\n> " + colors.ENDC)
+            if confirm == 'y' or confirm == 'Y':
+                return(input1, input2, input3)
+            else:
+                print(colors.RED + colors.BOLD +"\nExiting...\n" + colors.ENDC)
+                sys.exit()
+    elif input1 == '2' or input1 == '4':
+        print("\nStarting multi target phish -> Employees\n")
+        input2 = input(colors.ENDC + colors.BOLD + "Enter path to file of email addresses for multi target phish (ex. /home/user/list.csv): " + colors.ENDC)
+        input3 = input(colors.ENDC + colors.BOLD + "Enter Sender Alias (ex. John Doe): " + colors.ENDC)
+        if input1 == '2':
+            confirm = input(colors.GREEN + colors.BOLD + "\nExecute multi target phish to Employees in file: " + input2 + " with Sender Alias: " + input3 + " . Press \"y\" to confirm, press any other key to exit.\n> " + colors.ENDC)
+            if confirm == 'y' or confirm == 'Y':
+                return(input1, input2, input3)
+            else:
+                print(colors.RED + colors.BOLD + "\nExiting...\n" + colors.ENDC)
+                sys.exit()
+        elif input1 == '4':
+            confirm = input(colors.GREEN + colors.BOLD + "\nExecute multi target phish to Customers in file: " + input2 + " with Sender Alias: " + input3 + " . Press \"y\" to confirm, press any other key to exit.\n> " + colors.ENDC)
+            if confirm == 'y' or confirm == 'Y':
+                return(input1, input2, input3)
+            else:
+                print(colors.RED + colors.BOLD + "\nExiting...\n" + colors.ENDC)
+                sys.exit()
+    else:
+        print(colors.RED + colors.BOLD + "\nExiting...\n" + colors.ENDC)
         sys.exit()
-    email = args.email
-    file = args.file
-    return(email,file)
 
-def single_phish(email):
-    logo_gen()
+def single_phish(input1, input2, input3):
     user,mail_server = mail_server_connect()
-    url = create_url()
-    email_from, email_to, subject, url, body = send_email(user,email,mail_server,url)
-    create_log(email_from, email_to, subject, url, body)
+    email_to = input2
+    send_email(user,mail_server,email_to,input1,input2,input3)
     mail_server.quit()
 
-def multi_phish(file):
-    logo_gen()
-    print(colors.GREEN + "Starting multi target phish using file " + file + " \n" + colors.ENDC)
+def multi_phish(input1, input2, input3):
     user,mail_server = mail_server_connect()
-    email_list = open(file, 'r')
+    try:
+        email_list = open(input2, 'r')
+    except:
+        print(colors.RED + colors.BOLD + "file not found... Exiting...\n" + colors.ENDC)
+        mail_server.quit()
+        sys.exit()
+    print("Starting multi phish")
     emails = email_list.readlines()
     for email in emails:
-        url = create_url()
-        email_from, email_to, subject, url, body = send_email(user, email, mail_server, url)
-        create_log(email_from, email_to, subject, url, body)
+        email_to = email.rstrip('\n')
+        send_email(user,mail_server,email_to,input1,input2,input3)
         time.sleep(1)
     mail_server.quit()
-    email_list.close()
-
-def logo_gen():
-    print(colors.YELLOW + "                           __    _      __    __          __")
-    print(colors.YELLOW + " __                 ____  / /_  (_)____/ /_  / /_  ____  / /_")
-    print(colors.YELLOW + "/o \\/    __        / __ \\/ __ \\/ / ___/ __ \\/ __ \\/ __ \\/ __/")
-    print(colors.YELLOW + "\\__/\\   /o \\/     / /_/ / / / / (__  ) / / / /_/ / /_/ / /_  ")
-    print(colors.YELLOW + "        \\__/\\    / .___/_/ /_/_/____/_/ /_/_.___/\\____/\\__/  ")
-    print(colors.YELLOW + "                /_/ ")
 
 def mail_server_connect():
-    user = os.getenv('OUTLOOK_USER')
-    pswd = os.getenv('OUTLOOK_PASSWORD')
+    user = os.getenv('GMAIL_USER')
+    pswd = os.getenv('GMAIL_PASSWORD')
     smtp_port = 587
-    smtp_server = "smtp-mail.outlook.com"
-    print(colors.GREEN + "Connecting to mail server ... " + colors.ENDC)
+    smtp_server = "smtp.gmail.com"
+    print(colors.ENDC + colors.BOLD + "\nConnecting to mail server ... " + colors.ENDC)
     mail_server = smtplib.SMTP(smtp_server, smtp_port)
     mail_server.starttls()
     mail_server.login(user, pswd)
-    print(colors.GREEN + "Connected to mail server ... \n" + colors.ENDC)
     return(user,mail_server)
 
-def send_email(user,email,mail_server,url):
-    print(colors.GREEN + " <>< <><  Sending Phishbot email to " + email + "  <>< <>< " + colors.ENDC)
+def ai_gen(input1):
+    if input1 == '1' or input1 == '2':
+        subject = "Employee Subject"
+        body = "Employee Body"
+    elif input1 == '3' or input1 == '4':
+        subject = "Customer Subject"
+        body = "Customer Body"
+    print(colors.ENDC + colors.BOLD + "AI Generating email subject and body...")
+    return(subject,body)
+
+def send_email(user,mail_server,email_to,input1,input2,input3):
+    subject,body = ai_gen(input1)
+    url = url_gen(input1)
+    print(colors.GREEN + colors.BOLD + " <>< <><  Sending Phishbot email to " + email_to + " with email Alias " + input3 + " <>< <>< " + colors.ENDC)
     email_from = user
-    email_to = email
-    subject = "Organizational Announcement"
-    body = '<h2>We are pleased to welcome John Haxor to the organization! </h2><br /><br />' \
-           '<a href="' + url + '">Please check his linkedin profile</a><br /><br />' \
-           '<body>Regards,<br />Jane Doe<br />' \
-           '<style="color: #FF0000;"><b>Spyder Financial Services</b><br />'
+    if input1 == '1' or input1 == '2':
+        fullbody = '<html><body><br>' + body + '<br><br><a href="' + url + '">open Okta</a><br><br> Thank you,<br>' + input3 + '</body></html>'
+    if input1 == '3' or input1 == '4':
+        fullbody = '<html><body><br>' + body + '<br><br><a href="' + url + '">open Financial Services</a><br><br> Thank you,<br>' + input3 + '</body></html>'
     msg = MIMEMultipart()
-    msg['From'] = formataddr(('John Marshal', email_from))
+    msg['From'] = formataddr((input3, email_from))
     msg['To'] = email_to
     msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'html'))
-    ##uncomment below section if attachment required
-    #filename = "/Users/radspyder/Downloads/spider.png"
-    #attachment = open(filename, 'rb')
-    #attachment_package = MIMEBase('application', 'octet-stream')
-    #attachment_package.set_payload((attachment).read())
-    #encoders.encode_base64(attachment_package)
-    #attachment_package.add_header('Content-Disposition', "attachment; filename= " + filename)
-    #msg.attach(attachment_package)
-    ##end of attachment section
+    msg.attach(MIMEText(fullbody, 'html'))
     text = msg.as_string()
-    print(colors.GREEN + "<>< <><  Successfully sent Phishbot email to " + email_to + "  <>< <>< \n" + colors.ENDC)
     mail_server.sendmail(email_from, email_to, text)
-    return(email_from, email_to, subject, url, body)
+    create_log(email_from, email_to, subject, url, body, input1)
+    return(email_from, email_to, subject, body)
 
-def create_url():
-    print(colors.GREEN + "Creating unique url for target ... " + colors.ENDC)
+def url_gen(input1):
     t = str(round(time.time()))
-    f = open("/var/www/html/" + t + ".html", "w")
-    f.write("<html>gotcha!</html>")
-    f.close
-    url = "http://44.209.233.111/" + t + ".html" ###update IP address/hostname
-    print(colors.GREEN + "Created url " + url + " \n" + colors.ENDC)
+    if input1 == '1' or input1 == '2':
+        src_file = "/root/braddev/file.html"
+        dst_file = "/var/www/html/" + t + "_okta"
+        url = "http://44.209.233.111/" + t + "_okta"
+    elif input1 == '3' or input1 == '4':
+        src_file = "/root/braddev/file.html"
+        dst_file = "/var/www/html/" + t + "_toyotafinancial"
+        url = "http://44.209.233.111/" + t + "_toyotafinancial"
+    shutil.copy(src_file,dst_file)
+    print(colors.ENDC + colors.BOLD + "Creating target url: " + url + " ..." + colors.ENDC)
     return(url)
 
-def create_log(email_from,email_to,subject,url,body):
-    print(colors.GREEN + "Create log entry ... \n" + colors.ENDC)
+def create_log(email_from,email_to,subject,url,body,input1):
+    print(colors.ENDC + colors.BOLD + "Create log entry ... \n" + colors.ENDC)
+    body = re.sub(r'(\r|\n)',r'', body)
     logdate = (datetime.now()).strftime("%m/%d/%Y %H:%M:%S")
-    log_output = logdate + ' action="send_phish" sender="' + email_from + '" recipient="' + email_to + '" subject="' + subject + '" attachment= phishurl="' + url + '" body="' + body + '"\n'
+    log_output = '{"timestamp":"' + logdate + '","phishtype":"' + input1 + '","action":"send_initial_phish","aiuser":"system","sender":"' + email_from + '","recipient":"' + email_to + '","subject":"' + subject + '","phishurl":"' + url + '","body":"' + body + '"}\n'
     l = open("/opt/hackathon/phishbot.log", "a")
     l.write(log_output)
     l.close
 
-email,file = initialize()
-if email:
-    single_phish(email)
-if file:
-    multi_phish(file)
+def main():
+    logo()
+    input1, input2, input3 = menu()
+    if input1 == '1' or input1 == '3':
+        single_phish(input1, input2, input3)
+    if input1 == '2' or input1 == '4':
+        multi_phish(input1, input2, input3)
+
+if __name__ == "__main__":
+    main()
