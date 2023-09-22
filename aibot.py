@@ -112,7 +112,7 @@ def get_url(parsedemailto,parsedemailfrom,subject):
             if line.find(parsedemailto) != -1:
                 if line.find(parsedemailfrom) != -1:
                     if line.find(subject) != 1:
-                        if line.find("send_initial_phish")
+                        if line.find("send_initial_phish"):
                             url = re.findall(r'.*phishurl\"\:\"([^\"]*)', line)
                             url = str(url[0])
                             return(url)
