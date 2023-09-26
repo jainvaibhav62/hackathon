@@ -144,9 +144,9 @@ def send_email(user,mail_server,email_to,input1,input2,input3):
     print(colors.GREEN + colors.BOLD + " <>< <><  Sending Phishbot email to " + email_to + " with email Alias " + input3 + " <>< <>< " + colors.ENDC)
     email_from = user
     if input1 == '1' or input1 == '2':
-        fullbody = '<html><body><br>' + body + '<br><br><a href="' + url + '">open Okta</a><br><br> Thank you,<br>' + input3 + '</body></html>'
+        fullbody = '<html><body><br>' + body + '<br><br><a href=" + url + ">open Okta</a><br><br> Thank you,<br>' + input3 + '</body></html>'
     if input1 == '3' or input1 == '4':
-        fullbody = '<html><body><br>' + body + '<br><br><a href="' + url + '">open Financial Services</a><br><br> Thank you,<br>' + input3 + '</body></html>'
+        fullbody = '<html><body><br>' + body + '<br><br><a href=" + url + ">open Financial Services</a><br><br> Thank you,<br>' + input3 + '</body></html>'
     msg = MIMEMultipart()
     msg['From'] = formataddr((input3, email_from))
     msg['To'] = email_to
