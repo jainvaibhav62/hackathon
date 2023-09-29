@@ -113,6 +113,7 @@ def ai_gen(parsedemailto, parsedemailfrom, subject):
                 body = log_entry.get("body", "")
                 conversation_history += f"From {sender}: {body}\n\n"
     # Construct the prompt for OpenAI
+    print(conversation_history)
     prompt = (
         f"Here is an email conversation between {parsedemailfrom} and {parsedemailto}:\n\n"
         f"{conversation_history}"
