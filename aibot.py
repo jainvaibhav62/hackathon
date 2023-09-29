@@ -99,41 +99,11 @@ def create_reply_log(parsedemailfrom,parsedemailto,aibody,subject):
     l.write(log_output)
     l.close
 
-
-def ai_gen(parsedemailto, parsedemailfrom, subject):
-    openai.api_key = os.getenv('OPENAI_API_KEY')
+def ai_gen(parsedemailto,parsedemailfrom,subject):
     print("creating ai reply body")
-    # Load the conversation history
-    conversation_history = ""
-    with open("/opt/hackathon/phishbot.log", 'r') as fp:
-        for line in fp:
-            if parsedemailto in line or parsedemailfrom in line:
-                log_entry = ast.literal_eval(line)
-                sender = log_entry.get("sender", "")
-                body = log_entry.get("body", "")
-                conversation_history += f"From {sender}: {body}\n\n"
-    # Construct the prompt for OpenAI
-    print(conversation_history)
-    prompt = (
-        f"Here is an email conversation between {parsedemailfrom} and {parsedemailto}:\n\n"
-        f"{conversation_history}"
-        f"How should {parsedemailto} reply to {parsedemailfrom} to get them to perform the requested action?"
-    )
-    # Use OpenAI to generate the response
-    response = openai.Completion.create(
-        model="gpt-4.0-turbo",
-        prompt=prompt,
-        max_tokens=500,
-    )
-    aibody = response.choices[0].text.strip()
+    aibody = "Reply Body Here"
     phishtype = '1'
-    return aibody, phishtype
-
-#def ai_gen(parsedemailto,parsedemailfrom,subject):
-#    print("creating ai reply body")
-#    aibody = "Reply Body Here"
-#    phishtype = '1'
-#    return(aibody,phishtype)
+    return(aibody,phishtype)
 
 def get_url(parsedemailto,parsedemailfrom,subject):
     with open(r'/opt/hackathon/phishbot.log', 'r') as fp:
