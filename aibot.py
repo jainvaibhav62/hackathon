@@ -101,6 +101,7 @@ def create_reply_log(parsedemailfrom,parsedemailto,aibody,subject):
 
 
 def ai_gen(parsedemailto, parsedemailfrom, subject):
+    openai.api_key = os.getenv('OPENAI_API_KEY')
     print("creating ai reply body")
     # Load the conversation history
     conversation_history = ""
