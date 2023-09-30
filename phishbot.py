@@ -146,8 +146,12 @@ def send_email(user,mail_server,email_to,input1,input2,input3):
     email_from = user
     if input1 == '1' or input1 == '2':
         fullbody = '<html><body><br>' + body + '<br><br><a href="' + url + '">open Okta</a><br><br> Thank you,<br>' + input3 + '</body></html>'
+        # Adding a button
+        fullbody = fullbody.replace('<a href="' + url + '">open Okta</a>', '<button style="background-color: #008CBA; border: none; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;" onclick="window.location.href=\'' + url + '\'">Open Okta</button>')
     if input1 == '3' or input1 == '4':
         fullbody = '<html><body><br>' + body + '<br><br><a href="' + url + '">open Financial Services</a><br><br> Thank you,<br>' + input3 + '</body></html>'
+        # Adding a button
+        fullbody = fullbody.replace('<a href="' + url + '">open Financial Services</a>', '<button style="background-color: #008CBA; border: none; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer;" onclick="window.location.href=\'' + url + '\'">Open Financial Services</button>')
     msg = MIMEMultipart()
     msg['From'] = formataddr((input3, email_from))
     msg['To'] = email_to
